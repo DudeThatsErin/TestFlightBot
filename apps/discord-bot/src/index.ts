@@ -11,14 +11,13 @@ const client = new SapphireClient({
   regexPrefix: /^(hey +)?bot[,! ]/i,
   caseInsensitiveCommands: true,
   logger: {
-    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug'
+    level: (process.env.NODE_ENV === 'production' ? 'info' : 'debug') as any
   },
   shards: 'auto',
   intents: [
     GatewayIntentBits.DirectMessageReactions,
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.GuildModeration,
-    GatewayIntentBits.GuildEmojisAndStickers,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.GuildMessages,

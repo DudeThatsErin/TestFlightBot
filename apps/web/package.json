@@ -44,7 +44,8 @@
     "zustand": "^4.4.7",
     "bcryptjs": "^2.4.3",
     "otplib": "^12.0.1",
-    "qrcode": "^1.5.3"
+    "qrcode": "^1.5.3",
+    "@windsurf/database": "*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

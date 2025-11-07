@@ -17,7 +17,7 @@ export default function SignIn() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
@@ -70,7 +70,7 @@ export default function SignIn() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
               />
@@ -81,7 +81,7 @@ export default function SignIn() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
               />
@@ -93,7 +93,7 @@ export default function SignIn() {
                   id="totpCode"
                   type="text"
                   value={totpCode}
-                  onChange={(e) => setTotpCode(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTotpCode(e.target.value)}
                   placeholder="Enter 6-digit code"
                   maxLength={6}
                   required

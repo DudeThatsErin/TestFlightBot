@@ -13,6 +13,7 @@
   "dependencies": {
     "@discordjs/rest": "^2.2.0",
     "@prisma/client": "^5.7.1",
+    "@sapphire/decorators": "^6.0.0",
     "@sapphire/framework": "^5.0.0",
     "@sapphire/plugin-logger": "^4.0.0",
     "@sapphire/plugin-subcommands": "^6.0.0",
@@ -21,7 +22,8 @@
     "dotenv": "^16.3.1",
     "node-cron": "^3.0.3",
     "axios": "^1.6.5",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@windsurf/database": "*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

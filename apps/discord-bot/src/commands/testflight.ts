@@ -199,18 +199,19 @@ export class TestFlightCommand extends Command {
         .setColor(0x007aff)
         .setTimestamp();
 
-      builds.forEach((build, index) => {
-        const statusEmoji = {
+      builds.forEach((build: any, index: number) => {
+        const statusEmoji: Record<string, string> = {
           PENDING: '⏳',
           ACTIVE: '✅',
           EXPIRED: '❌',
           NOT_FOUND: '🚫',
           ERROR: '⚠️',
-        }[build.status] || '❓';
+        };
+        const emoji = statusEmoji[build.status] || '❓';
 
         embed.addFields({
           name: `${index + 1}. ${build.name} v${build.version}`,
-          value: `**Build:** ${build.buildNumber}\n**Status:** ${statusEmoji} ${build.status}\n**ID:** \`${build.id}\``,
+          value: `**Build:** ${build.buildNumber}\n**Status:** ${emoji} ${build.status}\n**ID:** \`${build.id}\``,
           inline: true,
         });
       });
@@ -285,20 +286,21 @@ export class TestFlightCommand extends Command {
         });
       }
 
-      const statusEmoji = {
+      const statusEmoji: Record<string, string> = {
         PENDING: '⏳',
         ACTIVE: '✅',
         EXPIRED: '❌',
         NOT_FOUND: '🚫',
         ERROR: '⚠️',
-      }[build.status] || '❓';
+      };
+      const emoji = statusEmoji[build.status] || '❓';
 
       const embed = new EmbedBuilder()
         .setTitle(`📱 ${build.name} v${build.version}`)
         .setColor(build.status === 'ACTIVE' ? 0x00ff00 : build.status === 'EXPIRED' ? 0xff0000 : 0xffff00)
         .addFields(
           { name: 'Build Number', value: build.buildNumber, inline: true },
-          { name: 'Status', value: `${statusEmoji} ${build.status}`, inline: true },
+          { name: 'Status', value: `${emoji} ${build.status}`, inline: true },
           { name: 'Last Checked', value: build.lastCheckedAt ? `<t:${Math.floor(build.lastCheckedAt.getTime() / 1000)}:R>` : 'Never', inline: true }
         )
         .setTimestamp();
@@ -308,7 +310,7 @@ export class TestFlightCommand extends Command {
       }
 
       if (build.logs.length > 0) {
-        const recentLogs = build.logs.slice(0, 3).map(log => 
+        const recentLogs = build.logs.slice(0, 3).map((log: any) => 
           `<t:${Math.floor(log.checkedAt.getTime() / 1000)}:t> - ${log.status}${log.message ? `: ${log.message}` : ''}`
         ).join('\n');
         

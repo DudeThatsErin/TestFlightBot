@@ -184,7 +184,7 @@ export class TestFlightMonitor {
         return;
       }
 
-      const statusEmoji = {
+      const statusEmoji: Record<string, string> = {
         PENDING: '⏳',
         ACTIVE: '✅',
         EXPIRED: '❌',
@@ -192,7 +192,7 @@ export class TestFlightMonitor {
         ERROR: '⚠️',
       };
 
-      const statusColors = {
+      const statusColors: Record<string, number> = {
         PENDING: 0xffff00,
         ACTIVE: 0x00ff00,
         EXPIRED: 0xff0000,
@@ -206,7 +206,7 @@ export class TestFlightMonitor {
         .addFields(
           { name: 'App', value: build.name, inline: true },
           { name: 'Version', value: `${build.version} (${build.buildNumber})`, inline: true },
-          { name: 'Status Change', value: `${statusEmoji[previousStatus]} ${previousStatus} → ${statusEmoji[newStatus]} ${newStatus}`, inline: false },
+          { name: 'Status Change', value: `${statusEmoji[previousStatus] || '❓'} ${previousStatus} → ${statusEmoji[newStatus] || '❓'} ${newStatus}`, inline: false },
           { name: 'Details', value: message, inline: false }
         )
         .setTimestamp()
