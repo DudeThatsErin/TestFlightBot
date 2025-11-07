@@ -7,7 +7,7 @@ import { TestFlightMonitor } from './services/testflight-monitor';
 config();
 
 const client = new SapphireClient({
-  defaultPrefix: '!',
+  defaultPrefix: ['$', '!'],
   regexPrefix: /^(hey +)?bot[,! ]/i,
   caseInsensitiveCommands: true,
   logger: {
