@@ -57,18 +57,18 @@ export function PublicTestFlightTable() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      PENDING: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", emoji: "⏳" },
-      ACTIVE: { color: "bg-green-100 text-green-800 border-green-200", emoji: "✅" },
-      EXPIRED: { color: "bg-red-100 text-red-800 border-red-200", emoji: "❌" },
-      NOT_FOUND: { color: "bg-gray-100 text-gray-800 border-gray-200", emoji: "🚫" },
-      ERROR: { color: "bg-orange-100 text-orange-800 border-orange-200", emoji: "⚠️" },
+      PENDING: { color: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-700" },
+      ACTIVE: { color: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700" },
+      EXPIRED: { color: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700" },
+      NOT_FOUND: { color: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-700" },
+      ERROR: { color: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700" },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.ERROR;
 
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${config.color}`}>
-        {config.emoji} {status}
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${config.color}`}>
+        {status}
       </span>
     );
   };
@@ -79,14 +79,14 @@ export function PublicTestFlightTable() {
         accessorKey: "name",
         header: "App Name",
         cell: (info) => (
-          <div className="font-medium text-gray-900">{info.getValue() as string}</div>
+          <div className="font-semibold text-slate-900 dark:text-slate-100">{info.getValue() as string}</div>
         ),
       },
       {
         accessorKey: "version",
         header: "Version",
         cell: (info) => (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-slate-600 dark:text-slate-400">
             v{info.getValue() as string} ({info.row.original.buildNumber})
           </div>
         ),
@@ -119,7 +119,7 @@ export function PublicTestFlightTable() {
         cell: (info) => {
           const date = info.getValue() as string | null;
           return (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-slate-600 dark:text-slate-400">
               {date ? new Date(date).toLocaleString() : "Never"}
             </div>
           );
@@ -129,7 +129,7 @@ export function PublicTestFlightTable() {
         accessorKey: "createdAt",
         header: "Added",
         cell: (info) => (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-slate-600 dark:text-slate-400">
             {new Date(info.getValue() as string).toLocaleDateString()}
           </div>
         ),
@@ -167,11 +167,11 @@ export function PublicTestFlightTable() {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-0">
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-            <span className="ml-2">Loading TestFlight builds...</span>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
+            <span className="ml-2 text-slate-700 dark:text-slate-300">Loading TestFlight builds...</span>
           </div>
         </CardContent>
       </Card>
@@ -179,42 +179,42 @@ export function PublicTestFlightTable() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span>📱 TestFlight Builds</span>
+    <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-0 shadow-xl">
+      <CardHeader className="border-b border-slate-200 dark:border-slate-700">
+        <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
+          <span>TestFlight Builds</span>
           <Button
             variant="outline"
             size="sm"
             onClick={fetchData}
-            className="ml-auto"
+            className="ml-auto border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
           >
             Refresh
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-4 w-4" />
               <Input
                 placeholder="Search builds..."
                 value={globalFilter ?? ""}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
               />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-400" />
+            <Filter className="h-4 w-4 text-slate-400 dark:text-slate-500" />
             <select
               value={(table.getColumn("status")?.getFilterValue() as string) ?? ""}
               onChange={(e) =>
                 table.getColumn("status")?.setFilterValue(e.target.value || undefined)
               }
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All Statuses</option>
               {uniqueStatuses.map((status) => (
@@ -227,15 +227,15 @@ export function PublicTestFlightTable() {
         </div>
 
         {/* Table */}
-        <div className="rounded-md border overflow-hidden">
+        <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-slate-50 dark:bg-slate-800/50">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-4 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider"
                     >
                       {header.isPlaceholder ? null : (
                         <div
@@ -270,11 +270,11 @@ export function PublicTestFlightTable() {
                 </tr>
               ))}
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-slate-800/30 divide-y divide-slate-200 dark:divide-slate-700">
               {table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50">
+                <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-4 py-4 whitespace-nowrap">
+                    <td key={cell.id} className="px-4 py-4 whitespace-nowrap text-slate-900 dark:text-slate-100">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
@@ -286,8 +286,8 @@ export function PublicTestFlightTable() {
 
         {/* Pagination */}
         {table.getPageCount() > 1 && (
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-gray-700">
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div className="text-sm text-slate-600 dark:text-slate-400">
               Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{" "}
               {Math.min(
                 (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
@@ -301,10 +301,11 @@ export function PublicTestFlightTable() {
                 size="sm"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
+                className="border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-slate-600 dark:text-slate-400 px-2">
                 Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
               </span>
               <Button
@@ -312,6 +313,7 @@ export function PublicTestFlightTable() {
                 size="sm"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
+                className="border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 Next
               </Button>
@@ -320,8 +322,12 @@ export function PublicTestFlightTable() {
         )}
 
         {table.getFilteredRowModel().rows.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            No TestFlight builds found matching your criteria.
+          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+            <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+              <Search className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+            </div>
+            <p className="text-lg font-medium mb-2">No TestFlight builds found</p>
+            <p className="text-sm">Try adjusting your search or filter criteria.</p>
           </div>
         )}
       </CardContent>

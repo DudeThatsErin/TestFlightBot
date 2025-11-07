@@ -10,7 +10,8 @@ import { TestFlightTable } from "@/components/testflight-table";
 import { AddTestFlightDialog } from "@/components/add-testflight-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Activity, Clock, AlertTriangle, CheckCircle } from "lucide-react";
+import { Plus, Activity, Clock, AlertTriangle, CheckCircle, Settings } from "lucide-react";
+import Link from "next/link";
 
 interface DashboardStats {
   total: number;
@@ -78,10 +79,18 @@ export default function Dashboard() {
             Manage and monitor TestFlight builds
           </p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add TestFlight URL
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/settings">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </Link>
+          </Button>
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add TestFlight URL
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}

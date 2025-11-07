@@ -12,6 +12,10 @@
     "db:studio": "turbo run db:studio",
     "prepare": "husky install"
   },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "@prisma/client": "^5.7.1"
+  },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.0",

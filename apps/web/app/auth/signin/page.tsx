@@ -52,20 +52,20 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            TestFlight Monitor
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-0 shadow-2xl">
+        <CardHeader className="space-y-1 pb-6">
+          <CardTitle className="text-2xl font-bold text-center text-slate-900 dark:text-white">
+            TestFlight Checker
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-slate-600 dark:text-slate-400">
             Sign in to your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="px-6 pb-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -73,10 +73,11 @@ export default function SignIn() {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
+                className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -84,11 +85,12 @@ export default function SignIn() {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
+                className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             {showTwoFactor && (
               <div className="space-y-2">
-                <Label htmlFor="totpCode">2FA Code</Label>
+                <Label htmlFor="totpCode" className="text-slate-700 dark:text-slate-300 font-medium">2FA Code</Label>
                 <Input
                   id="totpCode"
                   type="text"
@@ -98,15 +100,16 @@ export default function SignIn() {
                   maxLength={6}
                   required
                   disabled={isLoading}
+                  className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             )}
             {error && (
-              <div className="text-red-500 text-sm text-center">{error}</div>
+              <div className="text-red-500 dark:text-red-400 text-sm text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">{error}</div>
             )}
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium py-2.5 shadow-lg hover:shadow-xl transition-all duration-200"
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign In"}
