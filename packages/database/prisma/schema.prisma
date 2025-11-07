@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  name                  String?
+  email                 String    @unique
+  emailVerified         DateTime? @map("email_verified")
+  password              String
+  twoFactorEnabled      Boolean   @default(false) @map("two_factor_enabled")
+  twoFactorSecret       String?   @map("two_factor_secret")
+  role                  Role      @default(USER)
+  lastLoginAt           DateTime? @map("last_login_at")
+  lastLoginIp           String?   @map("last_login_ip")
+  failedLoginAttempts   Int       @default(0) @map("failed_login_attempts")
+  accountLocked         Boolean   @default(false) @map("account_locked")
+  accountLockedUntil    DateTime? @map("account_locked_until")
+  passwordResetToken    String?   @unique @map("password_reset_token")
+  passwordResetExpires  DateTime? @map("password_reset_expires")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  sessions              Session[]
+  createdTestflightBuilds TestflightBuild[] @relation("CreatedTestflightBuilds")
+  updatedTestflightBuilds TestflightBuild[] @relation("UpdatedTestflightBuilds")
+  testflightBuildLogs   TestflightBuildLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @unique @map("refresh_token")
+  userAgent    String?  @map("user_agent")
+  ipAddress    String?  @map("ip_address")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("sessions")
+}
+
+model TestflightBuild {
+  id              String               @id @default(cuid())
+  name            String
+  version         String
+  buildNumber     String               @map("build_number")
+  testflightUrl   String               @map("testflight_url")
+  status          TestflightStatus     @default(PENDING)
+  lastCheckedAt   DateTime?            @map("last_checked_at")
+  expiresAt       DateTime?            @map("expires_at")
+  notes           String?              @db.Text
+  isPublic        Boolean              @default(false) @map("is_public")
+  createdById     String               @map("created_by")
+  createdBy       User                 @relation("CreatedTestflightBuilds", fields: [createdById], references: [id])
+  updatedById     String?              @map("updated_by")
+  updatedBy       User?                @relation("UpdatedTestflightBuilds", fields: [updatedById], references: [id])
+  logs            TestflightBuildLog[]
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+
+  @@unique([version, buildNumber])
+  @@map("testflight_builds")
+}
+
+model TestflightBuildLog {
+  id                String          @id @default(cuid())
+  buildId           String          @map("build_id")
+  build             TestflightBuild @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  status            TestflightStatus
+  message           String?         @db.Text
+  checkedByUserId   String?         @map("checked_by_user_id")
+  checkedBy         User?           @relation(fields: [checkedByUserId], references: [id])
+  checkedAt         DateTime        @default(now()) @map("checked_at")
+  responseTimeMs    Int?            @map("response_time_ms")
+  httpStatus        Int?            @map("http_status")
+  errorDetails      String?         @db.Text @map("error_details")
+
+  @@map("testflight_build_logs")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum TestflightStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  NOT_FOUND
+  ERROR
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@windsurf/discord-bot",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@discordjs/rest": "^2.2.0",
+    "@prisma/client": "^5.7.1",
+    "@sapphire/framework": "^5.0.0",
+    "@sapphire/plugin-logger": "^4.0.0",
+    "@sapphire/plugin-subcommands": "^6.0.0",
+    "discord-api-types": "^0.37.81",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.3",
+    "axios": "^1.6.5",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/node-cron": "^3.0.11",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "eslint": "^8.54.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
+  }
+}

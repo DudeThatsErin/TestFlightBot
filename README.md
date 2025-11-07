@@ -1,135 +1,193 @@
-# Turborepo starter
+# TestFlight Monitor
 
-This Turborepo starter is maintained by the Turborepo core team.
+A comprehensive TestFlight monitoring system built with Next.js, Discord bot integration, and PostgreSQL. Monitor TestFlight builds automatically and get notified when builds become available or expire.
 
-## Using this example
+## Features
 
-Run the following command:
+- 🤖 **Discord Bot Integration**: Manage TestFlight URLs via Discord commands
+- 🔄 **Automatic Monitoring**: Checks TestFlight URLs every 5-6 minutes
+- 📊 **Admin Dashboard**: Modern web interface with TanStack Table for managing builds
+- 🔐 **Secure Authentication**: NextAuth.js with 2FA support using TOTP
+- 📧 **Email Notifications**: Built-in email functionality
+- 🗄️ **PostgreSQL Database**: Robust data storage with Prisma ORM
+- 🚀 **Vercel Ready**: Optimized for Vercel deployment
 
-```sh
-npx create-turbo@latest
+## Architecture
+
+This is a Turborepo monorepo containing:
+
+### Apps
+- `apps/web`: Next.js web application with admin dashboard
+- `apps/discord-bot`: Discord bot with Sapphire Framework
+
+### Packages
+- `packages/database`: Shared Prisma database schema and client
+- `packages/tsconfig`: Shared TypeScript configurations
+- `packages/config`: Shared ESLint configurations
+
+## Tech Stack
+
+- **Frontend**: Next.js 13, React, TailwindCSS, Radix UI
+- **Backend**: Next.js API Routes, tRPC
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js with 2FA (TOTP)
+- **Discord Bot**: Discord.js with Sapphire Framework
+- **Monitoring**: Node-cron for scheduled checks
+- **Deployment**: Vercel (web app), any Node.js host (bot)
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- PostgreSQL database
+- Discord bot token and server setup
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/DudeThatsErin/TestFlightBot.git
+   cd TestFlightBot
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+3. **Set up environment variables**
+   
+   Copy the example environment file:
+   ```bash
+   cp apps/web/.env.example apps/web/.env.local
+   ```
+   
+   Fill in your environment variables:
+   ```env
+   # Database
+   DATABASE_URL="postgresql://username:password@localhost:5432/testflight_monitor"
+   
+   # NextAuth.js
+   NEXTAUTH_SECRET="your-secret-key-here"
+   NEXTAUTH_URL="http://localhost:3000"
+   
+   # Discord Bot
+   DISCORD_TOKEN="your-discord-bot-token"
+   DISCORD_CLIENT_ID="your-discord-client-id"
+   DISCORD_GUILD_ID="your-discord-guild-id"
+   DISCORD_CHANNEL_ID="your-discord-channel-id"
+   
+   # Email Configuration
+   EMAIL_SERVER_HOST="smtp.gmail.com"
+   EMAIL_SERVER_PORT=587
+   EMAIL_SERVER_USER="your-email@gmail.com"
+   EMAIL_SERVER_PASSWORD="your-app-password"
+   EMAIL_FROM="noreply@yourdomain.com"
+   
+   # Admin Panel
+   ADMIN_PANEL_SECRET="unique-admin-panel-secret-path"
+   ```
+
+4. **Set up the database**
+   ```bash
+   # Generate Prisma client
+   npm run db:generate
+   
+   # Push database schema
+   npm run db:push
+   ```
+
+5. **Create an admin user**
+   
+   You'll need to manually create an admin user in your database or use the signup process and then update the user role to `ADMIN` or `SUPER_ADMIN`.
+
+### Development
+
+Run the development servers:
+
+```bash
+# Start all services
+npm run dev
+
+# Or start individual services
+npm run dev --filter=web      # Web app only
+npm run dev --filter=discord-bot  # Discord bot only
 ```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
 
 ### Build
 
-To build all apps and packages, run the following command:
+```bash
+# Build all apps
+npm run build
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+# Build specific app
+npm run build --filter=web
+npm run build --filter=discord-bot
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## Discord Bot Setup
 
+1. **Create a Discord Application**
+   - Go to [Discord Developer Portal](https://discord.com/developers/applications)
+   - Create a new application
+   - Go to the "Bot" section and create a bot
+   - Copy the bot token
+
+2. **Set up bot permissions**
+   - In the OAuth2 > URL Generator section
+   - Select "bot" and "applications.commands" scopes
+   - Select necessary permissions (Send Messages, Use Slash Commands, etc.)
+   - Use the generated URL to invite the bot to your server
+
+3. **Configure environment variables**
+   - Set `DISCORD_TOKEN` to your bot token
+   - Set `DISCORD_CLIENT_ID` to your application ID
+   - Set `DISCORD_GUILD_ID` to your server ID
+   - Set `DISCORD_CHANNEL_ID` to the channel where notifications should be sent
+
+## Admin Panel Access
+
+The admin panel is accessible at a unique URL defined by the `ADMIN_PANEL_SECRET` environment variable:
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+https://yourdomain.com/dashboard
 ```
 
-### Remote Caching
+Only users with `ADMIN` or `SUPER_ADMIN` roles can access the dashboard.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## Discord Commands
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+- `/testflight add` - Add a new TestFlight URL to monitor
+- `/testflight list` - List all monitored TestFlight builds
+- `/testflight remove` - Remove a TestFlight build from monitoring
+- `/testflight status` - Check the status of a specific build
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## Deployment
 
-```
-cd my-turborepo
+### Vercel (Web App)
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+1. Connect your GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+### Discord Bot Deployment
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+Deploy the Discord bot to any Node.js hosting service:
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- Railway
+- Render
+- DigitalOcean App Platform
+- AWS EC2
+- Google Cloud Run
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
+## Contributing
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## Useful Links
+## License
 
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+MIT License - see LICENSE file for details

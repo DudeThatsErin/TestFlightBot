@@ -36,3 +36,26 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Database
+*.db
+*.sqlite
+
+# Prisma
+packages/database/src/generated/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock

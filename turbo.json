@@ -1,21 +1,39 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "ui": "tui",
+  "globalDependencies": ["**/.env.*local"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "dist/**", "!.next/cache/**"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "package.json", "tsconfig.json"]
     },
     "lint": {
+      "outputs": [],
       "dependsOn": ["^lint"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "package.json"]
+    },
+    "db:generate": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "inputs": ["prisma/**/*", "package.json"]
+    },
+    "db:push": {
+      "cache": false,
+      "dependsOn": ["db:generate"],
+      "inputs": ["prisma/**/*", "package.json"]
+    },
+    "db:studio": {
+      "cache": false,
+      "dependsOn": ["db:generate"],
+      "inputs": ["prisma/**/*"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**/*.ts*", "src/**/*.js*", "test/**/*.ts", "test/**/*.js"]
     }
   }
 }
