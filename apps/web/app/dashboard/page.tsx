@@ -1,6 +1,9 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { TestFlightTable } from "@/components/testflight-table";
@@ -18,7 +21,9 @@ interface DashboardStats {
 }
 
 export default function Dashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession({
+    required: true,
+  });
   const [stats, setStats] = useState<DashboardStats>({
     total: 0,
     active: 0,
