@@ -17,15 +17,23 @@ interface TestFlightBuild {
 
 interface TestFlightTableProps {
   onStatsUpdate: () => void;
+  refreshTrigger?: number;
 }
 
-export function TestFlightTable({ onStatsUpdate }: TestFlightTableProps) {
+export function TestFlightTable({ onStatsUpdate, refreshTrigger }: TestFlightTableProps) {
   const [builds, setBuilds] = useState<TestFlightBuild[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchBuilds();
   }, []);
+
+  // Refresh when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0) {
+      fetchBuilds();
+    }
+  }, [refreshTrigger]);
 
   const fetchBuilds = async () => {
     try {

@@ -21,11 +21,12 @@ export async function GET() {
       DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
       DISCORD_GUILD_ID: process.env.DISCORD_GUILD_ID || '',
       DISCORD_CHANNEL_ID: process.env.DISCORD_CHANNEL_ID || '',
-      EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST || '',
-      EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT || '',
-      EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER || '',
-      EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD ? '***HIDDEN***' : '',
-      EMAIL_FROM: process.env.EMAIL_FROM || '',
+      DISCORD_ANNOUNCEMENT_CHANNEL_ID: process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID || '',
+      DISCORD_BOT_PREFIX: process.env.DISCORD_BOT_PREFIX || '!',
+      DISCORD_BOT_AVATAR_URL: process.env.DISCORD_BOT_AVATAR_URL || '',
+      DISCORD_BOT_STATUS: process.env.DISCORD_BOT_STATUS || 'online',
+      DISCORD_BOT_ACTIVITY: process.env.DISCORD_BOT_ACTIVITY || 'Monitoring TestFlight',
+      DISCORD_BOT_ACTIVITY_TYPE: process.env.DISCORD_BOT_ACTIVITY_TYPE || 'WATCHING',
       TESTFLIGHT_CHECK_INTERVAL: process.env.TESTFLIGHT_CHECK_INTERVAL || '300000',
     };
 

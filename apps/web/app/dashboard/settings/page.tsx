@@ -5,9 +5,11 @@ import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, Save, RefreshCw, Bot, Mail, Clock } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Settings, Save, RefreshCw, Bot, Clock } from "lucide-react";
 
 // Force dynamic rendering for this page
 export const dynamic = 'force-dynamic';
@@ -17,11 +19,12 @@ interface BotSettings {
   DISCORD_CLIENT_ID: string;
   DISCORD_GUILD_ID: string;
   DISCORD_CHANNEL_ID: string;
-  EMAIL_SERVER_HOST: string;
-  EMAIL_SERVER_PORT: string;
-  EMAIL_SERVER_USER: string;
-  EMAIL_SERVER_PASSWORD: string;
-  EMAIL_FROM: string;
+  DISCORD_ANNOUNCEMENT_CHANNEL_ID: string;
+  DISCORD_BOT_PREFIX: string;
+  DISCORD_BOT_AVATAR_URL: string;
+  DISCORD_BOT_STATUS: string;
+  DISCORD_BOT_ACTIVITY: string;
+  DISCORD_BOT_ACTIVITY_TYPE: string;
   TESTFLIGHT_CHECK_INTERVAL: string;
 }
 
@@ -34,11 +37,12 @@ export default function SettingsPage() {
     DISCORD_CLIENT_ID: '',
     DISCORD_GUILD_ID: '',
     DISCORD_CHANNEL_ID: '',
-    EMAIL_SERVER_HOST: '',
-    EMAIL_SERVER_PORT: '',
-    EMAIL_SERVER_USER: '',
-    EMAIL_SERVER_PASSWORD: '',
-    EMAIL_FROM: '',
+    DISCORD_ANNOUNCEMENT_CHANNEL_ID: '',
+    DISCORD_BOT_PREFIX: '!',
+    DISCORD_BOT_AVATAR_URL: '',
+    DISCORD_BOT_STATUS: 'online',
+    DISCORD_BOT_ACTIVITY: 'Monitoring TestFlight',
+    DISCORD_BOT_ACTIVITY_TYPE: 'WATCHING',
     TESTFLIGHT_CHECK_INTERVAL: '300000',
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -156,138 +160,162 @@ export default function SettingsPage() {
                 Configure your Discord bot connection and server settings
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="discord-token" className="text-slate-700 dark:text-slate-300 font-medium">
-                    Discord Bot Token
-                  </Label>
-                  <Input
-                    id="discord-token"
-                    type="password"
-                    value={settings.DISCORD_TOKEN}
-                    onChange={(e) => handleInputChange('DISCORD_TOKEN', e.target.value)}
-                    placeholder="Bot token from Discord Developer Portal"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
+            <CardContent className="space-y-6">
+              {/* Basic Configuration */}
+              <div>
+                <h4 className="text-lg font-medium text-slate-900 dark:text-white mb-3">Basic Configuration</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="discord-token" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Discord Bot Token
+                    </Label>
+                    <PasswordInput
+                      id="discord-token"
+                      value={settings.DISCORD_TOKEN}
+                      onChange={(e) => handleInputChange('DISCORD_TOKEN', e.target.value)}
+                      placeholder="Bot token from Discord Developer Portal"
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="discord-client-id" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Discord Client ID
+                    </Label>
+                    <Input
+                      id="discord-client-id"
+                      value={settings.DISCORD_CLIENT_ID}
+                      onChange={(e) => handleInputChange('DISCORD_CLIENT_ID', e.target.value)}
+                      placeholder="Application ID from Discord Developer Portal"
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="discord-guild-id" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Discord Server ID
+                    </Label>
+                    <Input
+                      id="discord-guild-id"
+                      value={settings.DISCORD_GUILD_ID}
+                      onChange={(e) => handleInputChange('DISCORD_GUILD_ID', e.target.value)}
+                      placeholder="Your Discord server ID"
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="discord-channel-id" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Command Channel ID
+                    </Label>
+                    <Input
+                      id="discord-channel-id"
+                      value={settings.DISCORD_CHANNEL_ID}
+                      onChange={(e) => handleInputChange('DISCORD_CHANNEL_ID', e.target.value)}
+                      placeholder="Channel ID for bot commands"
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="discord-client-id" className="text-slate-700 dark:text-slate-300 font-medium">
-                    Discord Client ID
-                  </Label>
-                  <Input
-                    id="discord-client-id"
-                    value={settings.DISCORD_CLIENT_ID}
-                    onChange={(e) => handleInputChange('DISCORD_CLIENT_ID', e.target.value)}
-                    placeholder="Application ID from Discord Developer Portal"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
+              </div>
+
+              {/* Bot Customization */}
+              <div>
+                <h4 className="text-lg font-medium text-slate-900 dark:text-white mb-3">Bot Customization</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bot-prefix" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Command Prefix
+                    </Label>
+                    <Input
+                      id="bot-prefix"
+                      value={settings.DISCORD_BOT_PREFIX}
+                      onChange={(e) => handleInputChange('DISCORD_BOT_PREFIX', e.target.value)}
+                      placeholder="!"
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bot-avatar" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Avatar URL
+                    </Label>
+                    <Input
+                      id="bot-avatar"
+                      value={settings.DISCORD_BOT_AVATAR_URL}
+                      onChange={(e) => handleInputChange('DISCORD_BOT_AVATAR_URL', e.target.value)}
+                      placeholder="https://example.com/avatar.png"
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bot-status" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Bot Status
+                    </Label>
+                    <Select value={settings.DISCORD_BOT_STATUS} onValueChange={(value) => handleInputChange('DISCORD_BOT_STATUS', value)}>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="online">Online</SelectItem>
+                        <SelectItem value="idle">Idle</SelectItem>
+                        <SelectItem value="dnd">Do Not Disturb</SelectItem>
+                        <SelectItem value="invisible">Invisible</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="activity-type" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Activity Type
+                    </Label>
+                    <Select value={settings.DISCORD_BOT_ACTIVITY_TYPE} onValueChange={(value) => handleInputChange('DISCORD_BOT_ACTIVITY_TYPE', value)}>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
+                        <SelectValue placeholder="Select activity type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PLAYING">Playing</SelectItem>
+                        <SelectItem value="STREAMING">Streaming</SelectItem>
+                        <SelectItem value="LISTENING">Listening to</SelectItem>
+                        <SelectItem value="WATCHING">Watching</SelectItem>
+                        <SelectItem value="COMPETING">Competing in</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="bot-activity" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Activity Message
+                    </Label>
+                    <Input
+                      id="bot-activity"
+                      value={settings.DISCORD_BOT_ACTIVITY}
+                      onChange={(e) => handleInputChange('DISCORD_BOT_ACTIVITY', e.target.value)}
+                      placeholder="Monitoring TestFlight"
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="discord-guild-id" className="text-slate-700 dark:text-slate-300 font-medium">
-                    Discord Server ID
-                  </Label>
-                  <Input
-                    id="discord-guild-id"
-                    value={settings.DISCORD_GUILD_ID}
-                    onChange={(e) => handleInputChange('DISCORD_GUILD_ID', e.target.value)}
-                    placeholder="Your Discord server ID"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="discord-channel-id" className="text-slate-700 dark:text-slate-300 font-medium">
-                    Discord Channel ID
-                  </Label>
-                  <Input
-                    id="discord-channel-id"
-                    value={settings.DISCORD_CHANNEL_ID}
-                    onChange={(e) => handleInputChange('DISCORD_CHANNEL_ID', e.target.value)}
-                    placeholder="Channel ID for notifications"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
+              </div>
+
+              {/* Announcement Settings */}
+              <div>
+                <h4 className="text-lg font-medium text-slate-900 dark:text-white mb-3">TestFlight Announcements</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="announcement-channel" className="text-slate-700 dark:text-slate-300 font-medium">
+                      Announcement Channel ID
+                    </Label>
+                    <Input
+                      id="announcement-channel"
+                      value={settings.DISCORD_ANNOUNCEMENT_CHANNEL_ID}
+                      onChange={(e) => handleInputChange('DISCORD_ANNOUNCEMENT_CHANNEL_ID', e.target.value)}
+                      placeholder="Channel ID where TestFlight announcements are posted"
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    />
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      This is where the bot will post notifications about new TestFlight builds
+                    </p>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Email Settings */}
-          <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-0 shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
-                <Mail className="h-5 w-5" />
-                Email Configuration
-              </CardTitle>
-              <CardDescription className="text-slate-600 dark:text-slate-400">
-                Configure SMTP settings for email notifications
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-host" className="text-slate-700 dark:text-slate-300 font-medium">
-                    SMTP Host
-                  </Label>
-                  <Input
-                    id="email-host"
-                    value={settings.EMAIL_SERVER_HOST}
-                    onChange={(e) => handleInputChange('EMAIL_SERVER_HOST', e.target.value)}
-                    placeholder="smtp.gmail.com"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email-port" className="text-slate-700 dark:text-slate-300 font-medium">
-                    SMTP Port
-                  </Label>
-                  <Input
-                    id="email-port"
-                    value={settings.EMAIL_SERVER_PORT}
-                    onChange={(e) => handleInputChange('EMAIL_SERVER_PORT', e.target.value)}
-                    placeholder="587"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email-user" className="text-slate-700 dark:text-slate-300 font-medium">
-                    SMTP Username
-                  </Label>
-                  <Input
-                    id="email-user"
-                    value={settings.EMAIL_SERVER_USER}
-                    onChange={(e) => handleInputChange('EMAIL_SERVER_USER', e.target.value)}
-                    placeholder="your-email@gmail.com"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email-password" className="text-slate-700 dark:text-slate-300 font-medium">
-                    SMTP Password
-                  </Label>
-                  <Input
-                    id="email-password"
-                    type="password"
-                    value={settings.EMAIL_SERVER_PASSWORD}
-                    onChange={(e) => handleInputChange('EMAIL_SERVER_PASSWORD', e.target.value)}
-                    placeholder="App password or SMTP password"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="email-from" className="text-slate-700 dark:text-slate-300 font-medium">
-                    From Email Address
-                  </Label>
-                  <Input
-                    id="email-from"
-                    value={settings.EMAIL_FROM}
-                    onChange={(e) => handleInputChange('EMAIL_FROM', e.target.value)}
-                    placeholder="noreply@yourdomain.com"
-                    className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Monitoring Settings */}
           <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-0 shadow-xl">

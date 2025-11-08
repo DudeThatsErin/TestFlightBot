@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn, getSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -16,6 +17,27 @@ export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Check for URL error parameters and convert to user-friendly messages
+  useEffect(() => {
+    const urlError = searchParams.get('error');
+    if (urlError) {
+      switch (urlError) {
+        case 'SessionRequired':
+          setError("Please sign in to access this page");
+          break;
+        case 'AccessDenied':
+          setError("Access denied. Please check your credentials");
+          break;
+        case 'Configuration':
+          setError("Authentication configuration error");
+          break;
+        default:
+          setError(urlError);
+      }
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,7 +56,20 @@ export default function SignIn() {
         if (result.error === "2FA code is required") {
           setShowTwoFactor(true);
         } else {
-          setError(result.error);
+          // Convert error codes to user-friendly messages
+          switch (result.error) {
+            case 'CredentialsSignin':
+              setError("Invalid email or password. Please try again.");
+              break;
+            case 'SessionRequired':
+              setError("Please sign in to access this page");
+              break;
+            case 'AccessDenied':
+              setError("Access denied. Please check your credentials");
+              break;
+            default:
+              setError(result.error);
+          }
         }
       } else if (result?.ok) {
         const session = await getSession();
@@ -52,20 +87,20 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-0 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-primary/5 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-card/90 backdrop-blur-sm border-0 shadow-2xl">
         <CardHeader className="space-y-1 pb-6">
-          <CardTitle className="text-2xl font-bold text-center text-slate-900 dark:text-white">
-            TestFlight Checker
+          <CardTitle className="text-2xl font-bold text-center text-foreground">
+            Sign In
           </CardTitle>
-          <CardDescription className="text-center text-slate-600 dark:text-slate-400">
+          <CardDescription className="text-center text-muted-foreground">
             Sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent className="px-6 pb-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -73,24 +108,21 @@ export default function SignIn() {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-medium">Password</Label>
-              <Input
+              <Label htmlFor="password">Password</Label>
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             {showTwoFactor && (
               <div className="space-y-2">
-                <Label htmlFor="totpCode" className="text-slate-700 dark:text-slate-300 font-medium">2FA Code</Label>
+                <Label htmlFor="totpCode">2FA Code</Label>
                 <Input
                   id="totpCode"
                   type="text"
@@ -100,16 +132,15 @@ export default function SignIn() {
                   maxLength={6}
                   required
                   disabled={isLoading}
-                  className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             )}
             {error && (
-              <div className="text-red-500 dark:text-red-400 text-sm text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">{error}</div>
+              <div className="text-red-400 text-sm text-center bg-red-500/20 p-3 rounded-lg border border-red-400/30 font-medium">{error}</div>
             )}
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium py-2.5 shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white font-medium"
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign In"}

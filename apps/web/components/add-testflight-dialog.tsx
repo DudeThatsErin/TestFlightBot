@@ -19,8 +19,6 @@ export function AddTestFlightDialog({
 }: AddTestFlightDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
-    version: "",
-    buildNumber: "",
     testflightUrl: "",
     notes: "",
   });
@@ -44,8 +42,6 @@ export function AddTestFlightDialog({
       if (response.ok) {
         setFormData({
           name: "",
-          version: "",
-          buildNumber: "",
           testflightUrl: "",
           notes: "",
         });
@@ -75,17 +71,17 @@ export function AddTestFlightDialog({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
         <CardHeader>
-          <CardTitle>Add TestFlight Build</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-slate-900 dark:text-white">Add TestFlight Build</CardTitle>
+          <CardDescription className="text-slate-600 dark:text-slate-400">
             Add a new TestFlight build to monitor
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">App Name</Label>
+              <Label htmlFor="name" className="text-slate-700 dark:text-slate-300">App Name</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -93,36 +89,13 @@ export function AddTestFlightDialog({
                 placeholder="My Awesome App"
                 required
                 disabled={isLoading}
+                className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="version">Version</Label>
-                <Input
-                  id="version"
-                  value={formData.version}
-                  onChange={handleInputChange("version")}
-                  placeholder="1.0.0"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="buildNumber">Build Number</Label>
-                <Input
-                  id="buildNumber"
-                  value={formData.buildNumber}
-                  onChange={handleInputChange("buildNumber")}
-                  placeholder="123"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
 
             <div className="space-y-2">
-              <Label htmlFor="testflightUrl">TestFlight URL</Label>
+              <Label htmlFor="testflightUrl" className="text-slate-700 dark:text-slate-300">TestFlight URL</Label>
               <Input
                 id="testflightUrl"
                 type="url"
@@ -131,24 +104,25 @@ export function AddTestFlightDialog({
                 placeholder="https://testflight.apple.com/join/..."
                 required
                 disabled={isLoading}
+                className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Label htmlFor="notes" className="text-slate-700 dark:text-slate-300">Notes (Optional)</Label>
               <textarea
                 id="notes"
                 value={formData.notes}
                 onChange={handleInputChange("notes")}
                 placeholder="Additional notes about this build..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
                 rows={3}
                 disabled={isLoading}
               />
             </div>
 
             {error && (
-              <div className="text-red-500 text-sm">{error}</div>
+              <div className="text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">{error}</div>
             )}
 
             <div className="flex justify-end space-x-2">
@@ -160,8 +134,8 @@ export function AddTestFlightDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Adding..." : "Add Build"}
+              <Button type="submit" disabled={isLoading} className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white">
+                {isLoading ? "Adding & Checking Status..." : "Add Build"}
               </Button>
             </div>
           </form>

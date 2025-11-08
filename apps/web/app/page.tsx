@@ -1,42 +1,40 @@
-import { PublicTestFlightTable } from "@/components/public-testflight-table";
+"use client";
+
+import { SharedTestFlightTable } from "@/components/shared-testflight-table";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Github, CheckCircle, Clock, XCircle, BarChart3 } from "lucide-react";
+import { Github, CheckCircle, XCircle, BarChart3 } from "lucide-react";
+import { useState, useEffect } from "react";
+
+interface PublicStats {
+  total: number;
+  active: number;
+  expired: number;
+}
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-      {/* Header */}
-      <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg border-b border-slate-200 dark:border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-                  TestFlight Checker
-                </h1>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Track TestFlight build status in real-time
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <Button variant="ghost" size="sm" asChild className="border-slate-600 dark:border-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200">
-                <a
-                  href="https://github.com/DudeThatsErin/TestFlightBot"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Github className="h-4 w-4 mr-2" />
-                  GitHub
-                </a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+  const [stats, setStats] = useState<PublicStats>({
+    total: 0,
+    active: 0,
+    expired: 0,
+  });
 
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch("/api/public/stats");
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    }
+  };
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-background to-primary/5">
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
@@ -51,26 +49,15 @@ export default function Home() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl shadow-lg border-0 p-6 hover:shadow-xl transition-all duration-200">
             <div className="flex items-center">
               <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg mr-4">
                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Active Builds</p>
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400">-</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl shadow-lg border-0 p-6 hover:shadow-xl transition-all duration-200">
-            <div className="flex items-center">
-              <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg mr-4">
-                <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Pending</p>
-                <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">-</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Active Links</p>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.active}</p>
               </div>
             </div>
           </div>
@@ -80,8 +67,8 @@ export default function Home() {
                 <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Expired</p>
-                <p className="text-3xl font-bold text-red-600 dark:text-red-400">-</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Expired Links</p>
+                <p className="text-3xl font-bold text-red-600 dark:text-red-400">{stats.expired}</p>
               </div>
             </div>
           </div>
@@ -91,15 +78,19 @@ export default function Home() {
                 <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Builds</p>
-                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">-</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Links</p>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.total}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* TestFlight Table */}
-        <PublicTestFlightTable />
+        <SharedTestFlightTable 
+          apiEndpoint="/api/public/testflight"
+          title="TestFlight Builds"
+          showAdminActions={false}
+        />
 
         {/* Footer */}
         <footer className="mt-12 text-center text-slate-500 dark:text-slate-400">
