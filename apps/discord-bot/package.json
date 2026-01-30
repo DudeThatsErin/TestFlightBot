@@ -20,6 +20,7 @@
     "discord-api-types": "^0.37.81",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
     "node-cron": "^3.0.3",
     "axios": "^1.6.5",
     "zod": "^3.22.4",

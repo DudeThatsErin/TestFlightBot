@@ -22,8 +22,5 @@ export * from './generated/client';
 // Export types
 export type { Prisma } from './generated/client';
 
-// Export enums
-export { Role, TestflightStatus } from './generated/client';
-
 // Export models
 export type { User, Session, TestflightBuild, TestflightBuildLog } from './generated/client';

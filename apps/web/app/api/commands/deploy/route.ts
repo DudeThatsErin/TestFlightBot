@@ -4,6 +4,20 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getDiscordConfigWithFallback } from '@/lib/discord-config';
 
+function asStringArray(value: unknown): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter((v): v is string => typeof v === 'string');
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.filter((v): v is string => typeof v === 'string');
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 // Force Node.js runtime to avoid Edge runtime compatibility issues
 export const runtime = 'nodejs';
 
@@ -45,10 +59,16 @@ export async function POST(request: NextRequest) {
     });
 
     // Convert database commands to Discord API format
-    const discordCommands = commands.map(command => ({
-      name: command.name,
-      description: command.description,
-      options: command.options.map(option => ({
+    const discordCommands = commands.map(command => {
+      const permissions = asStringArray(command.permissions);
+
+      return ({
+        name: command.name,
+        description: command.description,
+        options: command.options.map(option => {
+          const channelTypes = asStringArray(option.channelTypes);
+
+          return ({
         name: option.name,
         description: option.description,
         type: getDiscordOptionType(option.type),
@@ -62,14 +82,16 @@ export async function POST(request: NextRequest) {
         min_length: option.minLength,
         max_length: option.maxLength,
         autocomplete: option.autocomplete,
-        channel_types: option.channelTypes.length > 0 ? option.channelTypes.map(type => parseInt(type)) : undefined,
-      })),
-      default_member_permissions: command.permissions.length > 0 ? 
-        command.permissions.reduce((acc, perm) => acc | getDiscordPermission(perm), 0).toString() : 
-        undefined,
-      dm_permission: !command.guildOnly,
-      nsfw: command.nsfw,
-    }));
+        channel_types: channelTypes.length > 0 ? channelTypes.map(type => parseInt(type)) : undefined,
+      });
+        }),
+        default_member_permissions: permissions.length > 0 ? 
+          permissions.reduce((acc, perm) => acc | getDiscordPermission(perm), 0).toString() : 
+          undefined,
+        dm_permission: !command.guildOnly,
+        nsfw: command.nsfw,
+      });
+    });
 
     // Use native fetch instead of Discord.js REST client
     const baseUrl = 'https://discord.com/api/v10';

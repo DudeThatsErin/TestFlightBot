@@ -1,21 +1,20 @@
 import { DefaultSession } from "next-auth";
-import { Role } from "@windsurf/database";
 
 declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      role: Role;
+      role: string;
     } & DefaultSession["user"];
   }
 
   interface User {
-    role: Role;
+    role: string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    role: Role;
+    role: string;
   }
 }

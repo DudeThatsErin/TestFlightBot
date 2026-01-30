@@ -3,6 +3,32 @@ import { Command } from '@sapphire/framework';
 import { ChatInputCommandInteraction, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js';
 import { prisma } from '@windsurf/database';
 
+function asStringArray(value: unknown): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter((v): v is string => typeof v === 'string');
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.filter((v): v is string => typeof v === 'string');
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function asJsonValue(value: unknown): any {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+  return value;
+}
+
 @ApplyOptions<Command.Options>({
   description: 'Dynamic command handler for database-driven commands'
 })
@@ -87,7 +113,8 @@ export class DynamicCommand extends Command {
 
       // Add embeds if available
       if (response.embeds) {
-        const embeds = Array.isArray(response.embeds) ? response.embeds : [response.embeds];
+        const embedsValue = asJsonValue(response.embeds);
+        const embeds = Array.isArray(embedsValue) ? embedsValue : embedsValue ? [embedsValue] : [];
         replyOptions.embeds = embeds.map((embedData: any) => {
           const embed = new EmbedBuilder();
           
@@ -116,7 +143,8 @@ export class DynamicCommand extends Command {
 
       // Add components if available
       if (response.components) {
-        const components = Array.isArray(response.components) ? response.components : [response.components];
+        const componentsValue = asJsonValue(response.components);
+        const components = Array.isArray(componentsValue) ? componentsValue : componentsValue ? [componentsValue] : [];
         replyOptions.components = components.map((componentData: any) => {
           const row = new ActionRowBuilder<ButtonBuilder>();
           
@@ -145,9 +173,10 @@ export class DynamicCommand extends Command {
       await interaction.reply(replyOptions);
 
       // Add reactions if specified
-      if (response.reactions && response.reactions.length > 0) {
+      const reactions = asStringArray(response.reactions);
+      if (reactions.length > 0) {
         const message = await interaction.fetchReply();
-        for (const reaction of response.reactions) {
+        for (const reaction of reactions) {
           try {
             await message.react(reaction);
           } catch (error) {
@@ -217,12 +246,14 @@ export async function registerDynamicCommands(registry: Command.Registry) {
 
     for (const command of commands) {
       registry.registerChatInputCommand((builder) => {
+        const permissions = asStringArray(command.permissions);
+
         builder
           .setName(command.name)
           .setDescription(command.description)
           .setDefaultMemberPermissions(
-            command.permissions.length > 0 ? 
-              command.permissions.reduce((acc, perm) => acc | getDiscordPermission(perm), 0).toString() : 
+            permissions.length > 0 ? 
+              permissions.reduce((acc, perm) => acc | getDiscordPermission(perm), 0).toString() : 
               null
           )
           .setDMPermission(!command.guildOnly)
@@ -286,8 +317,9 @@ export async function registerDynamicCommands(registry: Command.Registry) {
                  .setDescription(option.description)
                  .setRequired(option.required);
               
-              if (option.channelTypes.length > 0) {
-                opt.addChannelTypes(...option.channelTypes.map(type => parseInt(type)));
+              const channelTypes = asStringArray(option.channelTypes);
+              if (channelTypes.length > 0) {
+                opt.addChannelTypes(...channelTypes.map(type => parseInt(type)));
               }
               
               return opt;

@@ -3,6 +3,7 @@ import { Command } from '@sapphire/framework';
 import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { prisma } from '@windsurf/database';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 
 const testflightUrlSchema = z.object({
   url: z.string().url().includes('testflight.apple.com'),
@@ -106,10 +107,40 @@ export class TestFlightCommand extends Command {
     }
   }
 
+  private async getOrCreateDiscordMappedUserId(interaction: ChatInputCommandInteraction): Promise<string> {
+    const discordUserId = interaction.user.id;
+    const discordUsername = interaction.user.username;
+
+    const existing = await prisma.user.findUnique({
+      where: { discordUserId },
+      select: { id: true },
+    });
+
+    if (existing) return existing.id;
+
+    const placeholderEmail = `discord-${discordUserId}@testflight.local`;
+    const password = await bcrypt.hash(`${discordUserId}-${Date.now()}`, 12);
+
+    const created = await prisma.user.create({
+      data: {
+        email: placeholderEmail,
+        password,
+        name: discordUsername,
+        discordUserId,
+        discordUsername,
+      },
+      select: { id: true }
+    });
+
+    return created.id;
+  }
+
   private async handleAdd(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
     try {
+      const creatorUserId = await this.getOrCreateDiscordMappedUserId(interaction);
+
       const url = interaction.options.getString('url', true);
       const name = interaction.options.getString('name', true);
       const version = interaction.options.getString('version', true);
@@ -149,7 +180,7 @@ export class TestFlightCommand extends Command {
           buildNumber: validatedData.buildNumber,
           testflightUrl: validatedData.url,
           notes: validatedData.notes,
-          createdById: 'system', // We'll need to handle user mapping later
+          createdById: creatorUserId,
           status: 'PENDING',
         },
       });

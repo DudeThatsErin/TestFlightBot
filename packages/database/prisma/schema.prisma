@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -17,9 +17,11 @@ model User {
   email                 String    @unique
   emailVerified         DateTime? @map("email_verified")
   password              String
+  discordUserId          String?   @unique @map("discord_user_id")
+  discordUsername        String?   @map("discord_username")
   twoFactorEnabled      Boolean   @default(false) @map("two_factor_enabled")
   twoFactorSecret       String?   @map("two_factor_secret")
-  role                  Role      @default(USER)
+  role                  String    @default("USER")
   lastLoginAt           DateTime? @map("last_login_at")
   lastLoginIp           String?   @map("last_login_ip")
   failedLoginAttempts   Int       @default(0) @map("failed_login_attempts")
@@ -58,10 +60,10 @@ model TestflightBuild {
   version         String
   buildNumber     String               @map("build_number")
   testflightUrl   String               @map("testflight_url")
-  status          TestflightStatus     @default(PENDING)
+  status          String               @default("PENDING")
   lastCheckedAt   DateTime?            @map("last_checked_at")
   expiresAt       DateTime?            @map("expires_at")
-  notes           String?              @db.Text
+  notes           String?
   isPublic        Boolean              @default(false) @map("is_public")
   createdById     String               @map("created_by")
   createdBy       User                 @relation("CreatedTestflightBuilds", fields: [createdById], references: [id])
@@ -79,30 +81,16 @@ model TestflightBuildLog {
   id                String          @id @default(cuid())
   buildId           String          @map("build_id")
   build             TestflightBuild @relation(fields: [buildId], references: [id], onDelete: Cascade)
-  status            TestflightStatus
-  message           String?         @db.Text
+  status            String
+  message           String?
   checkedByUserId   String?         @map("checked_by_user_id")
   checkedBy         User?           @relation(fields: [checkedByUserId], references: [id])
   checkedAt         DateTime        @default(now()) @map("checked_at")
   responseTimeMs    Int?            @map("response_time_ms")
   httpStatus        Int?            @map("http_status")
-  errorDetails      String?         @db.Text @map("error_details")
+  errorDetails      String?         @map("error_details")
 
   @@map("testflight_build_logs")
-}
-
-enum Role {
-  USER
-  ADMIN
-  SUPER_ADMIN
-}
-
-enum TestflightStatus {
-  PENDING
-  ACTIVE
-  EXPIRED
-  NOT_FOUND
-  ERROR
 }
 
 model DiscordCommand {
@@ -111,14 +99,14 @@ model DiscordCommand {
   description       String
   category          String?
   enabled           Boolean               @default(true)
-  permissions       String[]              // Array of required permissions
+  permissions       String?               // JSON array of required permissions
   cooldown          Int                   @default(0) // Cooldown in seconds
   guildOnly         Boolean               @default(false)
   ownerOnly         Boolean               @default(false)
   nsfw              Boolean               @default(false)
-  aliases           String[]              // Command aliases
+  aliases           String?               // JSON array of command aliases
   usage             String?               // Usage example
-  examples          String[]              // Usage examples
+  examples          String?               // JSON array of usage examples
   options           DiscordCommandOption[]
   responses         DiscordCommandResponse[]
   createdById       String                @map("created_by")
@@ -137,7 +125,7 @@ model DiscordCommandOption {
   command     DiscordCommand            @relation(fields: [commandId], references: [id], onDelete: Cascade)
   name        String
   description String
-  type        DiscordCommandOptionType
+  type        String
   required    Boolean                   @default(false)
   choices     DiscordCommandChoice[]
   minValue    Float?                    @map("min_value")
@@ -145,7 +133,7 @@ model DiscordCommandOption {
   minLength   Int?                      @map("min_length")
   maxLength   Int?                      @map("max_length")
   autocomplete Boolean                  @default(false)
-  channelTypes String[]                 @map("channel_types") // For channel options
+  channelTypes String?                 @map("channel_types") // JSON array of channel types
   order       Int                       @default(0)
 
   @@map("discord_command_options")
@@ -167,28 +155,15 @@ model DiscordCommandResponse {
   commandId   String         @map("command_id")
   command     DiscordCommand @relation(fields: [commandId], references: [id], onDelete: Cascade)
   trigger     String         // What triggers this response (subcommand, option value, etc.)
-  content     String?        @db.Text
-  embeds      Json?          // JSON array of embed objects
-  components  Json?          // JSON array of component objects (buttons, select menus)
-  files       String[]       // Array of file URLs/paths
+  content     String?
+  embeds      String?        // JSON array of embed objects
+  components  String?        // JSON array of component objects (buttons, select menus)
+  files       String?        // JSON array of file URLs/paths
   ephemeral   Boolean        @default(false)
   deleteAfter Int?           @map("delete_after") // Auto-delete after X seconds
-  reactions   String[]       // Array of emoji reactions to add
+  reactions   String?        // JSON array of emoji reactions to add
   order       Int            @default(0)
 
   @@map("discord_command_responses")
 }
 
-enum DiscordCommandOptionType {
-  SUB_COMMAND
-  SUB_COMMAND_GROUP
-  STRING
-  INTEGER
-  BOOLEAN
-  USER
-  CHANNEL
-  ROLE
-  MENTIONABLE
-  NUMBER
-  ATTACHMENT
-}

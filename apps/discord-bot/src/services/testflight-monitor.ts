@@ -1,7 +1,9 @@
 import axios from 'axios';
 import * as cron from 'node-cron';
-import { prisma, TestflightStatus } from '@windsurf/database';
+import { prisma } from '@windsurf/database';
 import { Client, EmbedBuilder, TextChannel } from 'discord.js';
+
+type TestflightStatus = 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'NOT_FOUND' | 'ERROR';
 
 export class TestFlightMonitor {
   private client: Client;
@@ -138,7 +140,7 @@ export class TestFlightMonitor {
     }
 
     // Update build status if it changed
-    const previousStatus = build.status;
+    const previousStatus = build.status as TestflightStatus;
     if (status !== previousStatus) {
       await prisma.testflightBuild.update({
         where: { id: buildId },
