@@ -11,6 +11,7 @@
 ## What I’m working on next
 
 ### TestFlightBot
+- Update Node to v24.0+ Whatever the latest version is
 - Get Prisma generation working end-to-end (`npm run db:generate`) with SQLite schema + updated code.
 - Run `npm run db:push` to create/update the SQLite DB file.
 - Restart `npm run dev` and verify:
